@@ -1,44 +1,71 @@
+using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
+    app.MapGet("/", _ =>
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
+        _.Response.Redirect("/swagger");
+        return Task.CompletedTask;
+    });
+}
+app.MapPost("/mergePdfFiles", (HttpContext context) =>
+    {
+        var pdfs = context.Request.Form.Files;
+        var resultStream = new MemoryStream();
+        using (var document = new PdfDocument())
+        {
+            foreach (var externalPdfFile in pdfs)
+            {
+                var externalPdf = PdfReader.Open(externalPdfFile.OpenReadStream(), PdfDocumentOpenMode.Import);
+                if (externalPdf.Pages.Count < 1)
+                    //log
+                    continue;
+
+                document.AddPage(externalPdf.Pages[0]);
+            }
+
+            document.Save(resultStream);
+        }
+
+        return Results.File(resultStream, "application/pdf", "ruvelt.pdf");
     })
-    .WithName("GetWeatherForecast")
+    .WithName("MergePdfFiles")
     .WithOpenApi();
+
+app.MapGet("/test", () =>
+    Results.Content("""
+                    <form enctype="multipart/form-data" method="post" action="/mergePdfFiles">
+                        <input name="pdfs[0]" type="file">
+                        <input name="pdfs[1]" type="file">
+                        <button>Send</button>
+                    </form>
+                    """, "text/html")
+);
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+
+// Configure the HTTP request pipeline.
+// if (app.Environment.IsDevelopment())
+
+// app.UseAntiforgery();
+// app.UseHttpsRedirection();
+
+// app.MapGet("/", () =>
+//     Results.Redirect("/swagger")
+// );
+
+// [FromForm] IEnumerable<IFormFile> pdfs 
+
+// document.Info.Title = "Created with PDFsharp";
+// document.Info.Subject = "Just a simple Hello-World program.";
