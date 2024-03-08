@@ -6,3 +6,7 @@ send pdf files with curl multipart-formdata or check test html page on localhost
 
 ### Pushed to docker hub
 https://hub.docker.com/repository/docker/ayazzali/merge-pdfs-api-as-form-data
+```shell
+docker build -t ayazzali/merge-pdfs-api-as-form-data  -f ./MergePdf/Dockerfile .
+docker push ayazzali/merge-pdfs-api-as-form-data
+```

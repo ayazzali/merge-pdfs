@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.WebHost.UseKestrel(o => o.Limits.MaxRequestBodySize = null);
 
 var app = builder.Build();
 
