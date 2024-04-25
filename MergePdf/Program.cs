@@ -1,3 +1,8 @@
+using MergePdf;
+using Microsoft.Extensions.Primitives;
+using PdfSharp;
+using PdfSharp.Drawing;
+using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
@@ -21,10 +26,21 @@ var app = builder.Build();
 }
 app.MapPost("/mergePdfFiles", (HttpContext context) =>
     {
+        context.Request.Form.TryGetValue("title", out StringValues titleVals);
         var pdfs = context.Request.Form.Files;
         var resultStream = new MemoryStream();
         using (var document = new PdfDocument())
         {
+            if (titleVals.Any())
+            {
+                var title = titleVals.First();
+                var page = document.AddPage();
+                page.Size = PageSize.A5;
+                var gfx = XGraphics.FromPdfPage(page);
+                var font = new XFont("arial", 20, XFontStyleEx.BoldItalic);
+                gfx.DrawString(title, font, XBrushes.DarkBlue, 10, 30);
+            }
+
             foreach (var externalPdfFile in pdfs)
             {
                 var externalPdf = PdfReader.Open(externalPdfFile.OpenReadStream(), PdfDocumentOpenMode.Import);
@@ -52,6 +68,8 @@ app.MapGet("/test", () =>
                     </form>
                     """, "text/html")
 );
+
+GlobalFontSettings.FontResolver = new DemoFontResolver();
 
 app.Run();
 

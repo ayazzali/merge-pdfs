@@ -20,4 +20,14 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Janitor.otf" />
+      <Resource Include="Janitor.otf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Update="arial.ttf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
