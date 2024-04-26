@@ -37,7 +37,7 @@ app.MapPost("/mergePdfFiles", (HttpContext context) =>
                 var page = document.AddPage();
                 page.MediaBox = new PdfRectangle(new XRect(0, 0, 200, 100));
                 var gfx = XGraphics.FromPdfPage(page);
-                var font = new XFont("arial", 20, XFontStyleEx.BoldItalic);
+                var font = new XFont("arial", 14, XFontStyleEx.BoldItalic);
                 gfx.DrawString(title, font, XBrushes.DarkBlue, 10, 30);
             }
 
