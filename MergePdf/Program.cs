@@ -27,6 +27,7 @@ var app = builder.Build();
 app.MapPost("/mergePdfFiles", (HttpContext context) =>
     {
         context.Request.Form.TryGetValue("title", out StringValues titleVals);
+        context.Request.Form.TryGetValue("secondTitle", out StringValues secondTitleVals);
         var pdfs = context.Request.Form.Files;
         var resultStream = new MemoryStream();
         using (var document = new PdfDocument())
@@ -39,6 +40,7 @@ app.MapPost("/mergePdfFiles", (HttpContext context) =>
                 var gfx = XGraphics.FromPdfPage(page);
                 var font = new XFont("arial", 10, XFontStyleEx.BoldItalic);
                 gfx.DrawString(title, font, XBrushes.DarkBlue, 5, 30);
+                gfx.DrawString(secondTitleVals.FirstOrDefault() ?? "", font, XBrushes.DarkBlue, 5, 50);
             }
 
             foreach (var externalPdfFile in pdfs)
