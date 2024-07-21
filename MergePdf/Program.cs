@@ -1,3 +1,4 @@
+using System.Reflection;
 using MergePdf;
 using Microsoft.Extensions.Primitives;
 using PdfSharp;
@@ -5,6 +6,11 @@ using PdfSharp.Drawing;
 using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
+
+var infoVersion = Assembly.GetExecutingAssembly()?
+    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+    .InformationalVersion;
+Console.WriteLine($"app version:{infoVersion}");
 
 var builder = WebApplication.CreateBuilder(args);
 
